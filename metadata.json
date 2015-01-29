@@ -1,0 +1,11 @@
+{
+  "name": "openstackci-log_processor",
+  "version": "0.0.1",
+  "author": "OpenStack CI",
+  "summary": "Puppet module for Log Processor",
+  "license": "Apache 2.0",
+  "source": "git://git.openstack.org/openstack-infra/puppet-log_processor.git",
+  "project_page": "http://ci.openstack.org/",
+  "issues_url": "https://storyboard.openstack.org/#!/project/801",
+  "dependencies": []
+}
