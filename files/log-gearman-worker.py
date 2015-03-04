@@ -359,9 +359,23 @@ class Server(object):
             logging.basicConfig(level=logging.CRITICAL)
         logging.debug("Log pusher starting.")
 
+    def wait_for_name_resolution(self, host, port):
+        while True:
+            try:
+                socket.getaddrinfo(host, port)
+            except socket.gaierror as e:
+                if e.errno == socket.EAI_AGAIN:
+                    logging.debug("Temporary failure in name resolution")
+                    time.sleep(2)
+                    continue
+                else:
+                    raise
+            break
+
     def setup_retriever(self):
         hostname = socket.gethostname()
         gearman_worker = gear.Worker(hostname + b'-pusher')
+        self.wait_for_name_resolution(self.gearman_host, self.gearman_port)
         gearman_worker.addServer(self.gearman_host,
                                  self.gearman_port)
         gearman_worker.registerFunction(b'push-log')

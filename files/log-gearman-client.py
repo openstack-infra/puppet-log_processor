@@ -24,6 +24,7 @@ import os.path
 import re
 import signal
 import threading
+import time
 import yaml
 import zmq
 
@@ -164,10 +165,25 @@ class Server(object):
             self.processors.append(log_processor)
             self.processors.append(subunit_processor)
 
+    def wait_for_name_resolution(self, host, port):
+        while True:
+            try:
+                socket.getaddrinfo(host, port)
+            except socket.gaierror as e:
+                if e.errno == socket.EAI_AGAIN:
+                    logging.debug("Temporary failure in name resolution")
+                    time.sleep(2)
+                    continue
+                else:
+                    raise
+            break
+
     def main(self):
         statsd_host = os.environ.get('STATSD_HOST')
         statsd_port = int(os.environ.get('STATSD_PORT', 8125))
         statsd_prefix = os.environ.get('STATSD_PREFIX', 'logstash.geard')
+        if statsd_host:
+            self.wait_for_name_resolution(statsd_host, statsd_port)
         self.gearserver = gear.Server(
             statsd_host=statsd_host,
             statsd_port=statsd_port,
