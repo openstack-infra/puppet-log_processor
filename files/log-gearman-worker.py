@@ -299,7 +299,7 @@ class INETLogProcessor(object):
         self.logq = logq
         self.host = host
         self.port = port
-        self._connect_socket()
+        self.socket = None
 
     def _connect_socket(self):
         logging.debug("Creating socket.")
@@ -309,6 +309,8 @@ class INETLogProcessor(object):
     def handle_log_event(self):
         log = self.logq.get()
         try:
+            if self.socket is None:
+                self._connect_socket()
             self.socket.sendall((json.dumps(log) + '\n').encode('utf-8'))
         except:
             logging.exception("Exception sending INET event.")
