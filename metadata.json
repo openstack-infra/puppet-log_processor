@@ -1,5 +1,5 @@
 {
-  "name": "openstackci-log_processor",
+  "name": "openstackinfra-log_processor",
   "version": "0.0.1",
   "author": "OpenStack CI",
   "summary": "Puppet module for Log Processor",
