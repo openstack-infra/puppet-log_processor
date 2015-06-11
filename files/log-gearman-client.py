@@ -34,6 +34,14 @@ except ImportError:
     import daemon.pidfile as pidfile_mod
 
 
+class SubunitProcessor(EventProcessor):
+    def __init__(self, zmq_address, gearman_client, files, source_url):
+        super(SubunitProcessor, self).__init__(zmq_address, gearman_client,
+                    files, source_url)
+
+    def _make_gear_job(self, output):
+        return gear.Job(b'push-subunit', json.dumps(output).encode('utf8'))
+
 class EventProcessor(threading.Thread):
     def __init__(self, zmq_address, gearman_client, files, source_url):
         threading.Thread.__init__(self)
@@ -80,15 +88,14 @@ class EventProcessor(threading.Thread):
             output['source_url'] = source_url
             output['retry'] = fileopts.get('retry-get', False)
             output['event'] = out_event
-            if 'subunit' in fileopts.get('name'):
-                job = gear.Job(b'push-subunit',
-                               json.dumps(output).encode('utf8'))
-            else:
-                job = gear.Job(b'push-log', json.dumps(output).encode('utf8'))
+            job = _make_gear_job(output)
             try:
                 self.gearman_client.submitJob(job)
             except:
                 logging.exception("Exception submitting job to Gearman.")
+
+    def _make_gear_job(self, output):
+        return gear.Job(b'push-log', json.dumps(output).encode('utf8'))
 
     def _get_log_dir(self, event):
         parameters = event["build"].get("parameters", {})
@@ -158,7 +165,7 @@ class Server(object):
             log_processor = EventProcessor(
                 publisher, gearclient,
                 self.config['source-files'], self.source_url)
-            subunit_processor = EventProcessor(
+            subunit_processor = SubunitProcessor(
                 publisher, gearclient,
                 self.config['subunit-files'], self.source_url)
             self.processors.append(log_processor)
