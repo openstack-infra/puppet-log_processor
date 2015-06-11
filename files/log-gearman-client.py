@@ -77,6 +77,10 @@ class EventProcessor(threading.Thread):
                 not re.match(build_queue_filter,
                              out_event['fields']['build_queue'])):
                 continue
+            project_filter = fileopts.get('project-filter')
+            if (project_filter and
+                not re.match(project_filter, out_event['fields']['project'])):
+                continue
             output['source_url'] = source_url
             output['retry'] = fileopts.get('retry-get', False)
             output['event'] = out_event
