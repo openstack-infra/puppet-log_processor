@@ -33,7 +33,7 @@ class log_processor (
     ensure => present,
   }
 
-  include pip
+  include ::pip
   package { 'gear':
     ensure   => latest,
     provider => 'pip',

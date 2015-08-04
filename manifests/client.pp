@@ -17,7 +17,7 @@
 #
 class log_processor::client (
   $config_file,
-  $statsd_host = '',
+  $statsd_host = undef,
 ) {
 
   file { '/etc/logstash/jenkins-log-client.yaml':
@@ -57,7 +57,7 @@ class log_processor::client (
     require    => File['/etc/init.d/jenkins-log-client'],
   }
 
-  include logrotate
+  include ::logrotate
   logrotate::file { 'log-client-debug.log':
     log     => '/var/log/logstash/log-client-debug.log',
     options => [

@@ -51,7 +51,7 @@ define log_processor::worker (
     ],
   }
 
-  include logrotate
+  include ::logrotate
   logrotate::file { "log-worker${suffix}-debug.log":
     log     => "/var/log/logstash/log-worker${suffix}-debug.log",
     options => [

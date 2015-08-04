@@ -1,5 +1,5 @@
-<% if scope.lookupvar("log_processor::client::statsd_host") != "" %>
-export STATSD_HOST=<%= scope.lookupvar("log_processor::client::statsd_host") %>
+<% if @statsd_host != nil %>
+export STATSD_HOST=<%= @statsd_host %>
 export STATSD_PORT=8125
 export STATSD_PREFIX="logstash.geard"
 <% end %>
