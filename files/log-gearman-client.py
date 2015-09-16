@@ -106,6 +106,8 @@ class EventProcessor(threading.Thread):
         fields["build_master"] = event["build"].get("host_name", "UNKNOWN")
         parameters = event["build"].get("parameters", {})
         fields["project"] = parameters.get("ZUUL_PROJECT", "UNKNOWN")
+        # The voting value is "1" for voting, "0" for non-voting
+        fields["voting"] = parameters.get("ZUUL_VOTING", "UNKNOWN")
         # TODO(clarkb) can we do better without duplicated data here?
         fields["build_uuid"] = parameters.get("ZUUL_UUID", "UNKNOWN")
         fields["build_short_uuid"] = fields["build_uuid"][:7]
