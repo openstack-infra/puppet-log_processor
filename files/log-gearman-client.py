@@ -126,6 +126,12 @@ class EventProcessor(threading.Thread):
         elif parameters.get("ZUUL_NEWREV"):
             fields["build_newrev"] = parameters.get("ZUUL_NEWREV",
                                                     "UNKNOWN")
+        if ["build_node"] != "UNKNOWN":
+            node_region = '-'.join(
+                fields["build_node"].split('-')[-3:-1])
+            fields["node_region"] = node_region or "UNKNOWN"
+        else:
+            fields["node_region"] = "UNKNOWN"
         return fields
 
     def _parse_event(self, event, fileopts):
