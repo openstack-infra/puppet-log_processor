@@ -20,13 +20,13 @@ define log_processor::worker (
 ) {
   $suffix = "-${name}"
 
-  file { "/etc/logstash/jenkins-log-worker${suffix}.yaml":
+  file { "/etc/logprocessor/jenkins-log-worker${suffix}.yaml":
     ensure  => present,
     owner   => 'root',
     group   => 'root',
     mode    => '0555',
     source  => $config_file,
-    require => Class['logstash::indexer'],
+    require => User['logprocessor'],
   }
 
   file { "/etc/init.d/jenkins-log-worker${suffix}":
@@ -37,23 +37,20 @@ define log_processor::worker (
     content => template('log_processor/jenkins-log-worker.init.erb'),
     require => [
       File['/usr/local/bin/log-gearman-worker.py'],
-      File["/etc/logstash/jenkins-log-worker${suffix}.yaml"],
+      File["/etc/logprocessor/jenkins-log-worker${suffix}.yaml"],
     ],
   }
 
   service { "jenkins-log-worker${suffix}":
     enable     => true,
     hasrestart => true,
-    subscribe  => File["/etc/logstash/jenkins-log-worker${suffix}.yaml"],
-    require    => [
-      Class['logstash::indexer'],
-      File["/etc/init.d/jenkins-log-worker${suffix}"],
-    ],
+    subscribe  => File["/etc/logprocessor/jenkins-log-worker${suffix}.yaml"],
+    require    => File["/etc/init.d/jenkins-log-worker${suffix}"],
   }
 
   include ::logrotate
   logrotate::file { "log-worker${suffix}-debug.log":
-    log     => "/var/log/logstash/log-worker${suffix}-debug.log",
+    log     => "/var/log/logprocessor/log-worker${suffix}-debug.log",
     options => [
       'compress',
       'copytruncate',

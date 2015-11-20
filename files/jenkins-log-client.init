@@ -17,9 +17,9 @@ DESC="Jenkins Log Client"
 NAME=jenkins-log-client
 DAEMON=/usr/local/bin/log-gearman-client.py
 PIDFILE=/var/run/$NAME/$NAME.pid
-DAEMON_ARGS="-c /etc/logstash/jenkins-log-client.yaml -d /var/log/logstash/log-client-debug.log -p $PIDFILE"
+DAEMON_ARGS="-c /etc/logprocessor/jenkins-log-client.yaml -d /var/log/logprocessor/log-client-debug.log -p $PIDFILE"
 SCRIPTNAME=/etc/init.d/$NAME
-USER=logstash
+USER=logprocessor
 
 # Exit if the package is not installed
 [ -x "$DAEMON" ] || exit 0

@@ -23,6 +23,35 @@ class log_processor (
     }
   }
 
+  group { 'logprocessor':
+    ensure => present,
+  }
+  user { 'logprocessor':
+    ensure     => present,
+    comment    => 'Log Processor User',
+    home       => '/etc/logprocessor',
+    gid        => 'logprocessor',
+    shell      => '/bin/bash',
+    membership => 'minimum',
+    require    => Group['logprocessor'],
+  }
+
+  file { '/etc/logprocessor':
+    ensure  => directory,
+    owner   => 'logprocessor',
+    group   => 'logprocessor',
+    mode    => '0755',
+    require => User['logprocessor'],
+  }
+
+  file { '/var/log/logprocessor':
+    ensure  => directory,
+    owner   => 'logprocessor',
+    group   => 'logprocessor',
+    mode    => '0755',
+    require => User['logprocessor'],
+  }
+
   package { 'python-zmq':
     ensure => present,
   }
@@ -50,9 +79,9 @@ class log_processor (
 
   file { '/var/lib/crm114':
     ensure  => directory,
-    owner   => 'logstash',
-    group   => 'logstash',
-    require => User['logstash'],
+    owner   => 'logprocessor',
+    group   => 'logprocessor',
+    require => User['logprocessor'],
   }
 
   file { '/usr/local/bin/classify-log.crm':

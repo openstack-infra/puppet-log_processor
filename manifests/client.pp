@@ -20,13 +20,13 @@ class log_processor::client (
   $statsd_host = undef,
 ) {
 
-  file { '/etc/logstash/jenkins-log-client.yaml':
+  file { '/etc/logprocessor/jenkins-log-client.yaml':
     ensure  => present,
     owner   => 'root',
     group   => 'root',
     mode    => '0555',
     source  => $config_file,
-    require => File['/etc/logstash'],
+    require => File['/etc/logprocessor'],
   }
 
   file { '/etc/init.d/jenkins-log-client':
@@ -37,7 +37,7 @@ class log_processor::client (
     source  => 'puppet:///modules/log_processor/jenkins-log-client.init',
     require => [
       File['/usr/local/bin/log-gearman-client.py'],
-      File['/etc/logstash/jenkins-log-client.yaml'],
+      File['/etc/logprocessor/jenkins-log-client.yaml'],
       File['/etc/default/jenkins-log-client'],
     ],
   }
@@ -53,13 +53,13 @@ class log_processor::client (
   service { 'jenkins-log-client':
     enable     => true,
     hasrestart => true,
-    subscribe  => File['/etc/logstash/jenkins-log-client.yaml'],
+    subscribe  => File['/etc/logprocessor/jenkins-log-client.yaml'],
     require    => File['/etc/init.d/jenkins-log-client'],
   }
 
   include ::logrotate
   logrotate::file { 'log-client-debug.log':
-    log     => '/var/log/logstash/log-client-debug.log',
+    log     => '/var/log/logprocessor/log-client-debug.log',
     options => [
       'compress',
       'copytruncate',

@@ -8,7 +8,6 @@
   "project_page": "http://docs.openstack.org/infra/system-config/",
   "issues_url": "https://storyboard.openstack.org/#!/project/801",
   "dependencies": [
-    {"name":"openstackci/logstash","version_requirement":">= 0.0.1"},
     {"name":"openstackci/pip","version_requirement":">= 0.0.1"},
     {"name":"openstackci/logrotate","version_requirement":">= 0.0.1"}
   ]
