@@ -36,7 +36,7 @@ define log_processor::worker (
     mode    => '0555',
     content => template('log_processor/jenkins-log-worker.init.erb'),
     require => [
-      File['/usr/local/bin/log-gearman-worker.py'],
+      Vcsrepo['/opt/log_processor'],
       File["/etc/logstash/jenkins-log-worker${suffix}.yaml"],
     ],
   }

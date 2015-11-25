@@ -16,6 +16,8 @@
 # == Class: log_processor
 #
 class log_processor (
+  $git_source = 'git://git.openstack.org/openstack-infra/log_processor',
+  $git_rev    = 'master',
 ) {
   package { 'python-daemon':
     ensure => present,
@@ -31,19 +33,6 @@ class log_processor (
 
   package { 'crm114':
     ensure => present,
-  }
-
-  include ::pip
-  package { 'gear':
-    ensure   => latest,
-    provider => 'pip',
-    require  => Class['pip'],
-  }
-
-  package { 'statsd':
-    ensure   => latest,
-    provider => 'pip',
-    require  => Class['pip'],
   }
 
   file { '/var/lib/crm114':
@@ -64,31 +53,23 @@ class log_processor (
     ],
   }
 
-  file { '/usr/local/bin/log-gearman-client.py':
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    source  => 'puppet:///modules/log_processor/log-gearman-client.py',
-    require => [
+  vcsrepo { '/opt/log_processor':
+    ensure   => latest,
+    provider => git,
+    source   => $git_source,
+    revision => $git_rev,
+  }
+
+  exec { 'install-log_processor':
+    command     => 'pip install --install-option="--install-scripts=/usr/local/bin" --install-option="--install-lib=/usr/local/lib/python2.7/dist-packages" /opt/log_processor',
+    path        => '/usr/local/bin:/usr/bin:/bin',
+    refreshonly => true,
+    subscribe   => Vcsrepo['/opt/log_processor'],
+    require     => [
       Package['python-daemon'],
-      Package['python-zmq'],
       Package['python-yaml'],
-      Package['gear'],
+      Package['python-zmq'],
     ],
   }
 
-  file { '/usr/local/bin/log-gearman-worker.py':
-    ensure  => present,
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0755',
-    source  => 'puppet:///modules/log_processor/log-gearman-worker.py',
-    require => [
-      Package['python-daemon'],
-      Package['python-zmq'],
-      Package['python-yaml'],
-      Package['gear'],
-    ],
-  }
 }

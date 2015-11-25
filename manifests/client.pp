@@ -36,7 +36,7 @@ class log_processor::client (
     mode    => '0555',
     source  => 'puppet:///modules/log_processor/jenkins-log-client.init',
     require => [
-      File['/usr/local/bin/log-gearman-client.py'],
+      Vcsrepo['/opt/log_processor'],
       File['/etc/logstash/jenkins-log-client.yaml'],
       File['/etc/default/jenkins-log-client'],
     ],
