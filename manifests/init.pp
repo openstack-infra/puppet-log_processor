@@ -17,8 +17,10 @@
 #
 class log_processor (
 ) {
-  package { 'python-daemon':
-    ensure => present,
+  if ! defined(Package['python-daemon']) {
+    package { 'python-daemon':
+      ensure => present,
+    }
   }
 
   package { 'python-zmq':
