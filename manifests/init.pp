@@ -67,13 +67,13 @@ class log_processor (
   include ::pip
   package { 'gear':
     ensure   => latest,
-    provider => 'pip',
+    provider => openstack_pip,
     require  => Class['pip'],
   }
 
   package { 'statsd':
     ensure   => latest,
-    provider => 'pip',
+    provider => openstack_pip,
     require  => Class['pip'],
   }
 
