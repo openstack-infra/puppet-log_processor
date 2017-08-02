@@ -76,9 +76,11 @@ class log_processor (
     provider => openstack_pip,
     require  => Class['pip'],
   }
+  # Temporarily pin paho-mqtt to 1.2.3 since 1.3.0 won't support TLS on
+  # Trusty's Python 2.7.
   if ! defined(Package['paho-mqtt']) {
     package { 'paho-mqtt':
-      ensure   => latest,
+      ensure   => '1.2.3',
       provider => openstack_pip,
       require  => Class['pip'],
     }
