@@ -363,14 +363,14 @@ class INETLogProcessor(object):
             semi_busy_wait(90)
             self._connect_socket()
             self.socket.sendall((json.dumps(log) + '\n').encode('utf-8'))
-             if self.mqtt:
-                 msg = json.dumps({
-                     'build_uuid': log.get('build_uuid'),
-                     'status': 'success',
-                 })
-                 self.mqtt.publish_single(msg, log.get('project'),
-                                          log.get('build_change'),
-                                          'logs_to_logstash')
+            if self.mqtt:
+                msg = json.dumps({
+                    'build_uuid': log.get('build_uuid'),
+                    'status': 'success',
+                })
+                self.mqtt.publish_single(msg, log.get('project'),
+                                         log.get('build_change'),
+                                         'logs_to_logstash')
 
 
 class UDPLogProcessor(INETLogProcessor):
@@ -398,7 +398,7 @@ class PushMQTT(object):
         return '/'.join([self.base_topic, project, job_id, action])
 
     def publish_single(self, msg, project, job_id, action):
-        topic = _generate_topic(project, job_id)
+        topic = self._generate_topic(project, job_id, action)
         publish.single(topic, msg, hostname=self.hostname,
                        port=self.port, client_id=self.client_id,
                        keepalive=self.keepalive, will=self.will,
@@ -418,7 +418,7 @@ class Server(object):
         mqtt_port = self.config.get('mqtt-port', 1883)
         mqtt_user = self.config.get('mqtt-user')
         mqtt_pass = self.config.get('mqtt-pass')
-        mqtt_topic = self.configget('mqtt-topic', 'gearman-subunit')
+        mqtt_topic = self.config.get('mqtt-topic', 'gearman-subunit')
         mqtt_ca_certs = self.config.get('mqtt-ca-certs')
         mqtt_certfile = self.config.get('mqtt-certfile')
         mqtt_keyfile = self.config.get('mqtt-keyfile')
