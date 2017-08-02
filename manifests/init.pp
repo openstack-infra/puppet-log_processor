@@ -76,6 +76,13 @@ class log_processor (
     provider => openstack_pip,
     require  => Class['pip'],
   }
+  if ! defined(Package['paho-mqtt']) {
+    package { 'paho-mqtt':
+      ensure   => latest,
+      provider => openstack_pip,
+      require  => Class['pip'],
+    }
+  }
 
   file { '/var/lib/crm114':
     ensure  => directory,
