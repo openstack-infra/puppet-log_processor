@@ -407,7 +407,7 @@ class PushMQTT(object):
             topic = self._generate_topic(project, job_id, action)
         elif build_queue:
             topic = self._generate_topic(project, build_queue, action)
-        else
+        else:
             topic = self.base_topic + '/' + project
 
         publish.single(topic, msg, hostname=self.hostname,
