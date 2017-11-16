@@ -407,7 +407,7 @@ class Server(object):
         # Pythong logging output file.
         self.debuglog = debuglog
         self.retriever = None
-        self.logqueue = Queue.Queue(131072)
+        self.logqueue = Queue.Queue(16384)
         self.processor = None
         self.filter_factories = []
         crmscript = self.config.get('crm114-script')
