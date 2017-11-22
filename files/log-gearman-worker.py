@@ -116,9 +116,19 @@ class CRM114FilterFactory(object):
     def __init__(self, script, basepath):
         self.script = script
         self.basepath = basepath
+        # Precompile regexes
+        self.re_remove_suffix = re.compile(r'(\.[^a-zA-Z]+)?(\.gz)?$')
+        self.re_remove_dot = re.compile(r'\.')
 
     def create(self, fields):
-        filename = re.sub('\.', '_', fields['filename'])
+        # We only want the basename so that the same logfile at different
+        # paths isn't treated as different
+        filename = os.path.basename(fields['filename'])
+        # We want to collapse any numeric or compression suffixes so that
+        # nova.log and nova.log.1 and nova.log.1.gz are treated as the same
+        # logical file
+        filename = self.re_remove_suffix.sub(r'', filename)
+        filename = self.re_remove_dot.sub('_', filename)
         path = os.path.join(self.basepath, filename)
         return CRM114Filter(self.script, path, fields['build_status'])
 
