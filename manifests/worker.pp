@@ -41,6 +41,17 @@ define log_processor::worker (
     ],
   }
 
+  if ($::operatingsystem == 'Ubuntu') and ($::operatingsystemrelease >= '16.04') {
+    # This is a hack to make sure that systemd is aware of the new service
+    # before we attempt to start it.
+    exec { "jenkins-log-worker${suffix}-systemd-daemon-reload":
+      command     => '/bin/systemctl daemon-reload',
+      before      => Service["jenkins-log-worker${suffix}"],
+      subscribe   => File["/etc/init.d/jenkins-log-worker${suffix}"],
+      refreshonly => true,
+    }
+  }
+
   service { "jenkins-log-worker${suffix}":
     enable     => true,
     hasrestart => true,
