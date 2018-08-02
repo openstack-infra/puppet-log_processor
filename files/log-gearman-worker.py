@@ -76,7 +76,7 @@ class CRM114Filter(object):
 
     def process(self, data):
         if not self.p:
-            return
+            return True
         self.p.stdin.write(data['message'].encode('utf-8') + '\n')
         (r, w, x) = select.select([self.p.stdout], [],
                                   [self.p.stdin, self.p.stdout], 20)
@@ -92,6 +92,7 @@ class CRM114Filter(object):
                 raise FilterException('Early EOF from CRM114')
         r = r.strip()
         data['error_pr'] = float(r)
+        return True
 
     def _catchOSError(self, method):
         try:
@@ -131,6 +132,35 @@ class CRM114FilterFactory(object):
         filename = self.re_remove_dot.sub('_', filename)
         path = os.path.join(self.basepath, filename)
         return CRM114Filter(self.script, path, fields['build_status'])
+
+
+class SeverityFilter(object):
+    DATEFMT = '\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}((\.|\,)\d{3,6})?'
+    SEVERITYFMT = '(DEBUG|INFO|WARNING|ERROR|TRACE|AUDIT|CRITICAL)'
+    OSLO_LOGMATCH = ('^(?P<date>%s)(?P<line>(?P<pid> \d+)? '
+                     '(?P<severity>%s).*)' %
+                     (DATEFMT, SEVERITYFMT))
+    OSLORE = re.compile(OSLO_LOGMATCH)
+
+    def process(self, data):
+        msg = data['message']
+        m = self.OSLORE.match(msg)
+        if m:
+            data['severity'] = m.group('severity')
+            if data['severity'].lower == 'debug':
+                # Ignore debug-level lines
+                return False
+        return True
+
+    def close(self):
+        pass
+
+
+class SeverityFilterFactory(object):
+    name = "Severity"
+
+    def create(self, fields):
+        return SeverityFilter()
 
 
 class LogRetriever(threading.Thread):
@@ -179,18 +209,23 @@ class LogRetriever(threading.Thread):
                     base_event.update(fields)
                     base_event["tags"] = tags
                     for line in log_lines:
+                        keep_line = True
                         out_event = base_event.copy()
                         out_event["message"] = line
                         new_filters = []
                         for f in filters:
+                            if not keep_line:
+                                new_filters.append(f)
+                                continue
                             try:
-                                f.process(out_event)
+                                keep_line = f.process(out_event)
                                 new_filters.append(f)
                             except FilterException:
                                 logging.exception("Exception filtering event: "
                                                   "%s" % line.encode("utf-8"))
                         filters = new_filters
-                        self.logq.put(out_event)
+                        if keep_line:
+                            self.logq.put(out_event)
                 finally:
                     for f in all_filters:
                         f.close()
@@ -420,6 +455,9 @@ class Server(object):
         self.logqueue = Queue.Queue(16384)
         self.processor = None
         self.filter_factories = []
+        # Run the severity filter first so it can filter out chatty
+        # logs.
+        self.filter_factories.append(SeverityFilterFactory())
         crmscript = self.config.get('crm114-script')
         crmdata = self.config.get('crm114-data')
         if crmscript and crmdata:
