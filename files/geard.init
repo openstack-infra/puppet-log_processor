@@ -25,7 +25,7 @@ USER=logprocessor
 
 # Read configuration variable file if it is present
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
-DAEMON_ARGS="-p $GEARD_PORT --pidfile $PIDFILE"
+DAEMON_ARGS="--listen-address $GEARD_LISTEN_ADDRESS -p $GEARD_PORT --pidfile $PIDFILE"
 
 # Load the VERBOSE setting and other rcS variables
 . /lib/init/vars.sh
