@@ -71,11 +71,20 @@ class log_processor (
     require  => Class['pip'],
   }
 
-  package { 'statsd':
-    ensure   => latest,
-    provider => openstack_pip,
-    require  => Class['pip'],
+  if ! defined(Package['statsd']) {
+    package { 'statsd':
+      # NOTE(cmurphy) If this is not pinned, the openstack_pip provider will
+      # attempt to install latest and conflict with the <3 cap from
+      # os-performance-tools. Unpin this when os-performance-tools raises its
+      # cap.
+      # NOTE (clarkb) we also install it here because geard can report stats
+      # with statsd so need it even if subunit2sql is not used.
+      ensure   => '2.1.2',
+      provider => openstack_pip,
+      require  => Class['pip']
+    }
   }
+
   # Temporarily pin paho-mqtt to 1.2.3 since 1.3.0 won't support TLS on
   # Trusty's Python 2.7.
   if ! defined(Package['paho-mqtt']) {
