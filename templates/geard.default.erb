@@ -1,0 +1,6 @@
+<% if @statsd_host != nil %>
+export STATSD_HOST=<%= @statsd_host %>
+export STATSD_PORT=8125
+export STATSD_PREFIX="logstash.geard"
+<% end %>
+export GEARD_PORT=<%= @geard_port %>
