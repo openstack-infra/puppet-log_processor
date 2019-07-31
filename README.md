@@ -1,5 +1,3 @@
-# OpenStack Log Processor Module
+# This repo has moved to OpenDev
 
-This module installs and configures Log Processor
-
-
+It can now be found at [https://opendev.org/opendev/puppet-log_processor](https://opendev.org/opendev/puppet-log_processor)
